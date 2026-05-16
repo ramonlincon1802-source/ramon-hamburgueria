@@ -41,6 +41,7 @@ body{background:var(--bg);color:var(--wh);font-family:'Inter',sans-serif;min-hei
   background-size:cover;
   background-position:center center;
   background-repeat:no-repeat;
+  filter:brightness(1.15) saturate(1.3) contrast(1.05);
   border-bottom:2px solid var(--red);
   position:relative;
   overflow:hidden;
@@ -50,7 +51,7 @@ body{background:var(--bg);color:var(--wh);font-family:'Inter',sans-serif;min-hei
 @media(min-width:768px){
   .hero{height:320px}
 }
-.hglow{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.88) 0%,rgba(0,0,0,.45) 55%,rgba(0,0,0,.2) 100%);pointer-events:none}
+.hglow{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.55) 0%,rgba(0,0,0,.15) 50%,rgba(0,0,0,.05) 100%);pointer-events:none}
 .hero-content{position:relative;z-index:1;padding:24px 32px;max-width:1200px;width:100%}
 @media(min-width:768px){.hero-content{padding:32px 48px}}
 .htag{display:inline-flex;background:rgba(232,25,44,.2);border:1px solid rgba(232,25,44,.5);color:#fff;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:5px 12px;border-radius:6px;margin-bottom:12px}
@@ -85,7 +86,7 @@ body{background:var(--bg);color:var(--wh);font-family:'Inter',sans-serif;min-hei
 .btnadd:active{background:var(--rd)}
 
 /* PORCOES */
-.pgrid{display:grid;grid-template-columns:1fr;gap:14px;background:var(--bg);padding:16px;max-width:1100px;margin:0 auto}@media(min-width:500px){.pgrid{grid-template-columns:repeat(3,1fr)}}
+.pgrid{display:grid;grid-template-columns:1fr;gap:20px;background:var(--bg);padding:20px;max-width:1100px;margin:0 auto}@media(min-width:500px){.pgrid{grid-template-columns:repeat(3,1fr)}}
 .pcard{background:var(--s2);display:flex;align-items:center;gap:14px;padding:12px;cursor:pointer;border-radius:14px;border:1.5px solid var(--bdr);transition:border-color .2s,transform .15s;overflow:hidden}
 .pcard:hover{border-color:var(--red);transform:translateY(-2px)}
 .pcard:active{transform:scale(.98)}
@@ -160,6 +161,41 @@ body{background:var(--bg);color:var(--wh);font-family:'Inter',sans-serif;min-hei
 .footer-copy span{color:var(--red)}
 .footer-dev{font-size:10px;color:#444;margin-top:3px}
 
+
+
+/* FLOATING CART BUTTON */
+.fab-cart{
+  position:fixed;
+  bottom:24px;
+  right:20px;
+  width:58px;height:58px;
+  background:var(--red);
+  border:none;border-radius:50%;
+  display:none;
+  align-items:center;justify-content:center;
+  cursor:pointer;
+  box-shadow:0 4px 20px rgba(232,25,44,.5);
+  z-index:800;
+  animation:fabPop .3s cubic-bezier(.4,0,.2,1);
+  transition:transform .15s,box-shadow .15s;
+}
+.fab-cart.show{display:flex}
+.fab-cart:active{transform:scale(.92)}
+.fab-cart:hover{box-shadow:0 6px 28px rgba(232,25,44,.7);transform:scale(1.06)}
+.fab-badge{
+  position:absolute;
+  top:-4px;right:-4px;
+  background:var(--gd);color:#000;
+  border-radius:50%;width:20px;height:20px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:900;
+  border:2px solid var(--bg);
+}
+@keyframes fabPop{
+  0%{transform:scale(0) rotate(-180deg);opacity:0}
+  70%{transform:scale(1.15) rotate(10deg)}
+  100%{transform:scale(1) rotate(0deg);opacity:1}
+}
 
 /* TOAST */
 .toast{position:fixed;top:70px;left:50%;transform:translateX(-50%) translateY(-10px);background:var(--s3);border:1px solid var(--bdr);color:var(--wh);padding:10px 20px;border-radius:100px;font-size:13px;font-weight:700;z-index:9999;opacity:0;pointer-events:none;transition:all .25s;white-space:nowrap}
@@ -401,8 +437,9 @@ function renderPorcoes() {
     var div = document.createElement("div");
     div.className = "pcard";
     div.dataset.id = p.id;
+    var porPos = p.id === 'batata' ? 'center 40%' : p.id === 'contra_file' ? 'center 35%' : 'center 30%';
     div.innerHTML =
-      '<img class="pimg" src="' + p.img + '" alt="' + p.nome + '" loading="lazy">' +
+      '<img class="pimg" src="' + p.img + '" alt="' + p.nome + '" loading="lazy" style="object-position:' + porPos + '">' +
       '<div class="pinfo">' +
         '<div class="pname">' + p.nome + '</div>' +
         '<div class="pdesc">' + p.desc + '</div>' +
@@ -591,14 +628,24 @@ function showToast(m) {
 // ── BADGE ──
 function updateBadge() {
   var b = el("cbadge");
+  var fab = el("fabCart");
+  var fabB = el("fabBadge");
   b.textContent = cart.length;
+  fabB.textContent = cart.length;
   if (cart.length > 0) {
     b.classList.add("show");
     b.style.animation = "none";
-    b.offsetHeight; // reflow
+    b.offsetHeight;
     b.style.animation = "popBadge .3s cubic-bezier(.4,0,.2,1)";
+    if (!fab.classList.contains("show")) {
+      fab.classList.add("show");
+    }
+    fabB.style.animation = "none";
+    fabB.offsetHeight;
+    fabB.style.animation = "popBadge .3s cubic-bezier(.4,0,.2,1)";
   } else {
     b.classList.remove("show");
+    fab.classList.remove("show");
   }
 }
 
@@ -607,5 +654,14 @@ renderLanches();
 renderPorcoes();
 
 </script>
+
+<button class="fab-cart" id="fabCart" onclick="openCart()">
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+  </svg>
+  <span class="fab-badge" id="fabBadge">0</span>
+</button>
+
 </body>
 </html>
