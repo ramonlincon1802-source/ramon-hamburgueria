@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Painel Admin — O Butiquim do Samba</title>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{--red:#E8192C;--rd:#B51020;--bg:#080808;--s1:#111111;--s2:#181818;--s3:#222222;--bdr:#2a2a2a;--wh:#F5F0EB;--mu:#8a8a8a;--gd:#F5C518}
+  body{background:var(--bg);color:var(--wh);font-family:'Inter',sans-serif;min-height:100vh}
+  ::-webkit-scrollbar{height:8px}
+  ::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:8px}
+
+  /* ===== LOGIN ===== */
+  #login{max-width:320px;margin:110px auto;background:var(--s1);border:1px solid var(--bdr);border-top:3px solid var(--gd);border-radius:14px;padding:30px 26px;text-align:center}
+  #login .lockIcon{font-size:28px;margin-bottom:8px}
+  #login h1{font-family:'Anton',sans-serif;font-size:18px}
+  #login .sub{color:var(--mu);font-size:12px;margin-top:4px}
+  #login input{width:100%;background:var(--s3);border:1px solid var(--bdr);border-radius:8px;padding:12px;color:var(--wh);font-size:15px;margin:16px 0 12px;outline:none;text-align:center}
+  #login input:focus{border-color:var(--red)}
+  #login button{width:100%;background:var(--red);color:#fff;border:none;border-radius:8px;padding:12px;font-family:'Anton',sans-serif;letter-spacing:1px;cursor:pointer}
+  #erroLogin{color:var(--red);font-size:12px;margin-top:10px;display:none}
+
+  /* ===== TOPO ===== */
+  #painel{display:none}
+  .topbar{background:var(--s1);border-bottom:3px solid var(--gd);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+  .topbar h1{font-family:'Anton',sans-serif;font-size:16px}
+  .topbar .sub{color:var(--mu);font-size:11px;text-transform:uppercase;letter-spacing:1px}
+  .btn{background:var(--s3);border:1px solid var(--bdr);color:var(--wh);padding:9px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:700}
+  .btn:hover{border-color:var(--gd)}
+
+  .conteudo{max-width:1050px;margin:0 auto;padding:20px}
+
+  /* ===== KPIS ===== */
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:20px}
+  .kpi{background:var(--s1);border:1px solid var(--bdr);border-left:3px solid var(--gd);border-radius:10px;padding:14px 16px}
+  .kpi .num{font-family:'Anton',sans-serif;font-size:22px;color:var(--gd)}
+  .kpi .lbl{font-size:11px;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-top:4px}
+
+  /* ===== GRÁFICO ===== */
+  .chart-box{background:var(--s1);border:1px solid var(--bdr);border-radius:10px;padding:16px;margin-bottom:20px}
+  .chart-title{font-family:'Anton',sans-serif;font-size:13px;letter-spacing:.5px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
+  .chart-title span{color:var(--mu);font-family:'Inter',sans-serif;font-weight:600;font-size:11px}
+  .chart-bars{display:flex;align-items:flex-end;gap:8px;height:100px}
+  .chart-col{display:flex;flex-direction:column;align-items:center;flex:1}
+  .chart-bar-track{height:76px;display:flex;align-items:flex-end;width:100%;max-width:34px}
+  .chart-bar{width:100%;background:linear-gradient(180deg,var(--red),var(--rd));border-radius:4px 4px 0 0;min-height:2px}
+  .chart-lbl{font-size:9.5px;color:var(--mu);margin-top:6px}
+  .chart-val{font-size:10px;color:var(--wh);margin-bottom:3px;font-weight:700}
+
+  /* ===== TABELA ===== */
+  .tabela-box{background:var(--s1);border:1px solid var(--bdr);border-radius:10px;padding:16px;overflow:hidden}
+  .tabela-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px}
+  .tabela-head h2{font-family:'Anton',sans-serif;font-size:14px}
+  #buscaInput{background:var(--s3);border:1px solid var(--bdr);color:var(--wh);padding:8px 12px;border-radius:8px;font-size:13px;outline:none;min-width:180px}
+  #buscaInput:focus{border-color:var(--gd)}
+  .scrollx{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{background:var(--s2);color:var(--mu);text-transform:uppercase;font-size:10.5px;letter-spacing:.5px;padding:10px;text-align:left;white-space:nowrap;cursor:pointer;user-select:none}
+  th:hover{color:var(--wh)}
+  th .arrow{opacity:.6;font-size:9px;margin-left:3px}
+  td{padding:10px;border-top:1px solid var(--bdr);white-space:nowrap}
+  tr:hover td{background:var(--s2)}
+  .tel{font-weight:700}
+  .medal{margin-right:5px}
+  .badge{display:inline-block;background:var(--red);color:#fff;border-radius:20px;padding:2px 10px;font-size:11px;font-weight:700}
+  .badge.zero{background:var(--s3);color:var(--mu)}
+  .valor{color:var(--gd);font-weight:700}
+  .vazio{text-align:center;padding:40px 20px;color:var(--mu)}
+</style>
+</head>
+<body>
+
+<div id="login">
+  <div class="lockIcon">🔒</div>
+  <h1>Painel Admin</h1>
+  <div class="sub">O Butiquim do Samba</div>
+  <input type="password" id="senhaInput" placeholder="Senha de acesso">
+  <button onclick="tentarLogin()">ENTRAR</button>
+  <div id="erroLogin">Senha incorreta.</div>
+</div>
+
+<div id="painel">
+  <div class="topbar">
+    <div>
+      <h1>🥁 O Butiquim do Samba</h1>
+      <div class="sub">Clientes do site</div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn" onclick="carregarDados()">🔄 Atualizar</button>
+      <button class="btn" onclick="location.reload()">🚪 Sair</button>
+    </div>
+  </div>
+
+  <div class="conteudo">
+    <div class="kpis">
+      <div class="kpi"><div class="num" id="kpiFaturamento">—</div><div class="lbl">Faturamento total</div></div>
+      <div class="kpi"><div class="num" id="kpiTicket">—</div><div class="lbl">Ticket médio</div></div>
+      <div class="kpi"><div class="num" id="kpiPedidos">—</div><div class="lbl">Pedidos finalizados</div></div>
+      <div class="kpi"><div class="num" id="kpiClientes">—</div><div class="lbl">Clientes que entraram</div></div>
+    </div>
+
+    <div class="chart-box">
+      <div class="chart-title">Pedidos nos últimos 7 dias <span id="chartTotal"></span></div>
+      <div class="chart-bars" id="chartPedidos"></div>
+    </div>
+
+    <div class="tabela-box">
+      <div class="tabela-head">
+        <h2>📋 Lista de clientes</h2>
+        <input type="text" id="buscaInput" placeholder="Buscar por WhatsApp..." oninput="renderizarTabela()">
+      </div>
+      <div class="scrollx">
+        <table>
+          <thead>
+            <tr>
+              <th onclick="ordenarPor('telefone')">WhatsApp<span class="arrow" id="arrow-telefone"></span></th>
+              <th onclick="ordenarPor('vezesEntrou')">Entradas<span class="arrow" id="arrow-vezesEntrou"></span></th>
+              <th onclick="ordenarPor('pedidosFinalizados')">Pedidos<span class="arrow" id="arrow-pedidosFinalizados"></span></th>
+              <th onclick="ordenarPor('valorTotalGasto')">Valor gasto<span class="arrow" id="arrow-valorTotalGasto"></span></th>
+              <th onclick="ordenarPor('ultimaVisita')">Última visita<span class="arrow" id="arrow-ultimaVisita"></span></th>
+            </tr>
+          </thead>
+          <tbody id="corpoTabela"></tbody>
+        </table>
+      </div>
+      <div id="vazio" class="vazio" style="display:none">Ainda não há visitantes registrados.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== FIREBASE ===== -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+  // ⚠️ Troque essa senha por uma sua.
+  var SENHA_ADMIN = "Lincon1802";
+
+  var db = null;
+  var dbDisponivel = false;
+  try {
+    var firebaseConfig = {
+      apiKey: "AIzaSyAymU-2aqbDu-zo3voNumCUoFJUdGXT4QY",
+      authDomain: "butiquim-do-samba.firebaseapp.com",
+      projectId: "butiquim-do-samba",
+      storageBucket: "butiquim-do-samba.firebasestorage.app",
+      messagingSenderId: "707289905627",
+      appId: "1:707289905627:web:11dfa803f3e26e25f30ffe"
+    };
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.firestore();
+    dbDisponivel = true;
+  } catch (e) {
+    console.error("Firebase não carregou:", e);
+  }
+
+  function tentarLogin() {
+    var senha = document.getElementById("senhaInput").value;
+    if (senha === SENHA_ADMIN) {
+      document.getElementById("login").style.display = "none";
+      document.getElementById("painel").style.display = "block";
+      carregarDados();
+    } else {
+      document.getElementById("erroLogin").style.display = "block";
+    }
+  }
+  document.getElementById("senhaInput").addEventListener("keydown", function (e) {
+    if (e.key === "Enter") tentarLogin();
+  });
+
+  var clientesCache = [];
+  var ordemAtual = { campo: "valorTotalGasto", dir: "desc" };
+
+  function formatarMoeda(v) {
+    v = Number(v) || 0;
+    return "R$ " + v.toFixed(2).replace(".", ",");
+  }
+  function formatarData(ts) {
+    if (!ts) return "—";
+    var d = (typeof ts.toDate === "function") ? ts.toDate() : new Date(ts);
+    return d.toLocaleDateString("pt-BR") + " " + d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+  }
+  function chaveDia(d) {
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  }
+  function rotuloDia(d) {
+    return String(d.getDate()).padStart(2, "0") + "/" + String(d.getMonth() + 1).padStart(2, "0");
+  }
+
+  function carregarDados() {
+    if (!dbDisponivel) {
+      document.getElementById("vazio").style.display = "block";
+      document.getElementById("vazio").textContent = "Não foi possível conectar. Verifique sua internet e clique em Atualizar.";
+      return;
+    }
+
+    var cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - 6);
+    cutoff.setHours(0, 0, 0, 0);
+
+    Promise.all([
+      db.collection("visitantes").get(),
+      db.collection("eventos").where("timestamp", ">=", cutoff).orderBy("timestamp", "asc").limit(2000).get()
+    ]).then(function (resultados) {
+      var visitantesSnap = resultados[0];
+      var eventosSnap = resultados[1];
+
+      var clientes = [];
+      visitantesSnap.forEach(function (doc) {
+        var v = doc.data();
+        clientes.push({
+          id: doc.id,
+          telefone: v.telefone || doc.id,
+          vezesEntrou: v.vezesEntrou || 0,
+          pedidosFinalizados: v.pedidosFinalizados || 0,
+          valorTotalGasto: v.valorTotalGasto || 0,
+          ultimaVisita: v.ultimaVisita || null
+        });
+      });
+      clientesCache = clientes;
+
+      // ---- KPIs ----
+      var totalFaturamento = 0, totalPedidos = 0;
+      clientes.forEach(function (c) {
+        totalFaturamento += c.valorTotalGasto;
+        totalPedidos += c.pedidosFinalizados;
+      });
+      var ticketMedio = totalPedidos > 0 ? totalFaturamento / totalPedidos : 0;
+
+      document.getElementById("kpiFaturamento").textContent = formatarMoeda(totalFaturamento);
+      document.getElementById("kpiTicket").textContent = formatarMoeda(ticketMedio);
+      document.getElementById("kpiPedidos").textContent = totalPedidos;
+      document.getElementById("kpiClientes").textContent = clientes.length;
+
+      // ---- Gráfico (últimos 7 dias) ----
+      var dias = [];
+      for (var i = 6; i >= 0; i--) {
+        var d = new Date();
+        d.setDate(d.getDate() - i);
+        dias.push(d);
+      }
+      var pedidosPorDia = {};
+      dias.forEach(function (d) { pedidosPorDia[chaveDia(d)] = 0; });
+      var totalPeriodo = 0;
+      eventosSnap.forEach(function (doc) {
+        var e = doc.data();
+        if (e.tipo !== "pedido") return;
+        var ts = e.timestamp && e.timestamp.toDate ? e.timestamp.toDate() : null;
+        if (!ts) return;
+        var k = chaveDia(ts);
+        if (k in pedidosPorDia) { pedidosPorDia[k]++; totalPeriodo++; }
+      });
+      document.getElementById("chartTotal").textContent = totalPeriodo + " pedido(s) no período";
+      desenharGrafico(dias, pedidosPorDia);
+
+      // ---- Tabela ----
+      document.getElementById("vazio").style.display = clientes.length ? "none" : "block";
+      renderizarTabela();
+    }).catch(function (e) {
+      alert("Erro ao carregar dados: " + e.message);
+      console.error(e);
+    });
+  }
+
+  function desenharGrafico(dias, mapaValores) {
+    var container = document.getElementById("chartPedidos");
+    container.innerHTML = "";
+    var valores = dias.map(function (d) { return mapaValores[chaveDia(d)] || 0; });
+    var max = Math.max.apply(null, valores.concat([1]));
+
+    dias.forEach(function (d) {
+      var k = chaveDia(d);
+      var v = mapaValores[k] || 0;
+      var alturaPct = Math.max((v / max) * 100, v > 0 ? 6 : 2);
+      var col = document.createElement("div");
+      col.className = "chart-col";
+      col.innerHTML =
+        '<div class="chart-val">' + v + '</div>' +
+        '<div class="chart-bar-track"><div class="chart-bar" style="height:' + alturaPct + '%"></div></div>' +
+        '<div class="chart-lbl">' + rotuloDia(d) + '</div>';
+      container.appendChild(col);
+    });
+  }
+
+  function ordenarPor(campo) {
+    if (ordemAtual.campo === campo) {
+      ordemAtual.dir = ordemAtual.dir === "desc" ? "asc" : "desc";
+    } else {
+      ordemAtual.campo = campo;
+      ordemAtual.dir = "desc";
+    }
+    renderizarTabela();
+  }
+
+  function renderizarTabela() {
+    var termo = (document.getElementById("buscaInput").value || "").replace(/\D/g, "");
+    var lista = clientesCache.filter(function (c) {
+      return !termo || c.telefone.replace(/\D/g, "").indexOf(termo) !== -1;
+    });
+
+    // top 3 por valor gasto (medalhas), calculado sobre todos os clientes
+    var top3 = clientesCache.slice().sort(function (a, b) { return b.valorTotalGasto - a.valorTotalGasto; })
+      .filter(function (c) { return c.valorTotalGasto > 0; }).slice(0, 3);
+    var medalhas = {};
+    top3.forEach(function (c, i) { medalhas[c.id] = ["🥇", "🥈", "🥉"][i]; });
+
+    var campo = ordemAtual.campo, dir = ordemAtual.dir;
+    lista.sort(function (a, b) {
+      var va = a[campo], vb = b[campo];
+      if (va && va.toMillis) va = va.toMillis();
+      if (vb && vb.toMillis) vb = vb.toMillis();
+      if (typeof va === "string") { va = va.toLowerCase(); vb = (vb || "").toLowerCase(); }
+      if (va === null || va === undefined) va = 0;
+      if (vb === null || vb === undefined) vb = 0;
+      if (va < vb) return dir === "asc" ? -1 : 1;
+      if (va > vb) return dir === "asc" ? 1 : -1;
+      return 0;
+    });
+
+    document.querySelectorAll(".arrow").forEach(function (el) { el.textContent = ""; });
+    var arrowEl = document.getElementById("arrow-" + campo);
+    if (arrowEl) arrowEl.textContent = dir === "asc" ? "▲" : "▼";
+
+    var corpo = document.getElementById("corpoTabela");
+    corpo.innerHTML = "";
+    lista.forEach(function (c) {
+      var tr = document.createElement("tr");
+      var badgeClass = c.pedidosFinalizados > 0 ? "badge" : "badge zero";
+      var medalha = medalhas[c.id] ? '<span class="medal">' + medalhas[c.id] + '</span>' : "";
+      tr.innerHTML =
+        '<td class="tel">' + medalha + c.telefone + '</td>' +
+        '<td>' + c.vezesEntrou + '</td>' +
+        '<td><span class="' + badgeClass + '">' + c.pedidosFinalizados + '</span></td>' +
+        '<td class="valor">' + formatarMoeda(c.valorTotalGasto) + '</td>' +
+        '<td>' + formatarData(c.ultimaVisita) + '</td>';
+      corpo.appendChild(tr);
+    });
+  }
+</script>
+</body>
+</html>
