@@ -440,6 +440,12 @@
   .fab-cart:hover{transform:scale(1.1);box-shadow:0 6px 32px rgba(232,25,44,.7)}
   .fab-cart:active{transform:scale(.92)}
   @keyframes fabIn{0%{transform:scale(0) rotate(-180deg);opacity:0}60%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+  @keyframes fabBump{0%{transform:scale(1) rotate(0)}30%{transform:scale(1.18) rotate(-8deg)}55%{transform:scale(.94) rotate(4deg)}100%{transform:scale(1) rotate(0)}}
+  .fab-cart.bump{animation:fabBump .5s cubic-bezier(.34,1.56,.64,1)}
+  .reveal-pre{opacity:0;transform:translateY(18px)}
+  .reveal-in{opacity:1;transform:translateY(0);transition:opacity .5s ease,transform .5s cubic-bezier(.2,.7,.3,1)}
+  @media (prefers-reduced-motion: reduce){.fab-cart.bump{animation:none}.reveal-pre{opacity:1;transform:none}}
+
   .fab-badge{
     position:absolute;top:-5px;right:-5px;
     background:var(--gd);color:#000;border-radius:50%;
@@ -894,9 +900,15 @@
 
   /* ===== PROMOÇÃO (Diogo Nogueira / Cartola) ===== */
   .card-promo{border:1.5px solid var(--red) !important;box-shadow:0 0 14px rgba(232,25,44,.3)}
-  .promo-ribbon{position:absolute;top:0;left:0;right:0;z-index:6;background:linear-gradient(90deg,var(--red),#b51020);color:#fff;font-size:10.5px;font-weight:900;letter-spacing:1px;text-align:center;padding:5px 4px;text-transform:uppercase;pointer-events:none}
+  .promo-ribbon{position:absolute;top:0;left:0;right:0;z-index:6;background:linear-gradient(90deg,var(--red),#b51020);color:#fff;font-size:10.5px;font-weight:900;letter-spacing:1px;text-align:center;padding:5px 4px;text-transform:uppercase;pointer-events:none;overflow:hidden}
+  .promo-ribbon::after{content:"";position:absolute;top:0;left:-40%;width:35%;height:100%;background:linear-gradient(115deg,transparent,rgba(255,255,255,.65),transparent);animation:shineSweep 2.6s ease-in-out infinite;animation-delay:1.1s}
+  @keyframes shineSweep{0%{left:-40%}100%{left:130%}}
+  @keyframes sambaPulse{0%,100%{box-shadow:0 0 0 0 rgba(232,25,44,.5)}9%{box-shadow:0 0 0 7px rgba(232,25,44,0)}18%{box-shadow:0 0 0 0 rgba(232,25,44,.4)}27%{box-shadow:0 0 0 6px rgba(232,25,44,0)}}
+  .card-promo{animation:sambaPulse 3.4s ease-out infinite}
+  .card-promo:hover{animation-play-state:paused}
   .price-old{color:#999;text-decoration:line-through;font-size:12px;font-weight:600;margin-right:6px}
-  .price-new{color:var(--red)}
+  .price-new{color:var(--red);font-weight:900;font-size:1.08em}
+  @media (prefers-reduced-motion: reduce){.promo-ribbon::after,.card-promo{animation:none}}
 
   /* ===== COMBO 2 LANCHES (Na Palma da Mao) ===== */
   .card-combo2{border:1.5px solid var(--gd) !important;box-shadow:0 0 14px rgba(245,197,24,.3)}
@@ -953,6 +965,7 @@
     <button class="btn-x" id="btnCloseSide">&#10005;</button>
   </div>
   <nav class="side-nav">
+    <a href="#" onclick="showTab('promos');closeMenu();return false">🎁 Promoções</a>
     <a href="#" onclick="showTab('lanches');closeMenu();return false">🍔 Lanches</a>
     <a href="#" onclick="showTab('combos');closeMenu();return false">🔥 Combos</a>
     <a href="#" onclick="showTab('porcoes');closeMenu();return false">🍽️ Porções</a>
@@ -983,6 +996,35 @@
 </div>
 
 
+
+<section class="sec" id="sec-promos">
+  <div style="max-width:900px;margin:0 auto;padding:0 16px 40px">
+    <div class="shd">
+      <h2>Promoções</h2>
+      <p>Vantagens de verdade pra quem é do Samba</p>
+    </div>
+
+    <div style="background:linear-gradient(135deg,var(--s1),var(--s2));border:2px solid var(--gd);border-radius:16px;padding:20px;margin-bottom:18px;display:flex;align-items:center;gap:14px">
+      <div style="font-size:34px">🚚</div>
+      <div>
+        <div style="font-family:'Anton',sans-serif;font-size:16px;letter-spacing:1px;color:var(--gd)">FRETE GRÁTIS</div>
+        <div style="font-size:14px;color:var(--wh);opacity:.9">Em compras acima de <b>R$ 70,00</b>, o frete é por nossa conta.</div>
+      </div>
+    </div>
+
+    <div id="comboDiaBox" style="background:linear-gradient(135deg,var(--s1),var(--s2));border:2px solid var(--red);border-radius:16px;padding:18px;margin-bottom:18px">
+      <div style="font-family:'Anton',sans-serif;font-size:16px;letter-spacing:1px;color:var(--red);margin-bottom:6px">🔥 LANCHE DO DIA — 15% OFF</div>
+      <div id="comboDiaConteudo" style="font-size:14px;color:var(--wh);opacity:.9">Carregando...</div>
+    </div>
+
+    <div style="background:linear-gradient(135deg,var(--s1),var(--s2));border:2px solid var(--bdr);border-radius:16px;padding:18px">
+      <div style="font-family:'Anton',sans-serif;font-size:16px;letter-spacing:1px;color:var(--gd);margin-bottom:6px">👥 INDIQUE E GANHE</div>
+      <div style="font-size:14px;color:var(--wh);opacity:.9;margin-bottom:10px">Compartilhe seu código com um amigo. Quando ele entrar no site e usar seu código, <b>os dois</b> ganham R$ 6,99 de desconto no próximo pedido — você por ter indicado, e ele por ter usado o código. Não tem código? Sem problema, dá pra entrar no site normalmente.</div>
+      <div style="font-size:13px;color:var(--mu);margin-bottom:4px">Seu código de indicação:</div>
+      <div id="meuCodigoIndicacao" style="font-family:'Anton',sans-serif;font-size:22px;letter-spacing:3px;color:var(--gd)">— — — —</div>
+    </div>
+  </div>
+</section>
 
 <section class="sec on" id="sec-lanches">
   <div class="grid-wrap">
@@ -1206,6 +1248,7 @@
     <div class="entrar-title">🥁 Bem-vindo(a)!</div>
     <div class="entrar-sub">Digite seu WhatsApp pra gente te reconhecer nas próximas visitas e agilizar seu pedido 😉</div>
     <input type="tel" id="entrarWpp" placeholder="(11) 91234-5678" inputmode="tel">
+    <input type="text" id="entrarCupom" placeholder="Código de indicação (opcional)" maxlength="4" style="text-transform:uppercase">
     <button onclick="confirmarEntrada()">ENTRAR</button>
   </div>
 </div>
@@ -1260,6 +1303,8 @@
   }
 
   function limparTelefone(t) { return (t || "").replace(/\D/g, ""); }
+  // Código de indicação de cada cliente = últimos 4 dígitos do WhatsApp
+  function codigoIndicacao(tel) { var d = limparTelefone(tel); return d.slice(-4); }
 
   // Registra/atualiza a visita da pessoa no Firebase
   function registrarVisita(tel) {
@@ -1281,8 +1326,12 @@
           ultimaVisita: agora,
           vezesEntrou: 1,
           pedidosFinalizados: 0,
-          valorTotalGasto: 0
+          valorTotalGasto: 0,
+          creditosIndicacao: 0
         });
+        // Registra o código de indicação dessa pessoa (últimos 4 dígitos do telefone)
+        db.collection("codigos").doc(codigoIndicacao(tel)).set({ telefone: tel }, { merge: true })
+          .catch(function (e) { console.error("Erro ao registrar código de indicação:", e); });
       }
     }).catch(function (e) { console.error("Erro ao registrar visita:", e); });
 
@@ -1350,6 +1399,49 @@
     if (avisoCarrinho) avisoCarrinho.style.display = elegivelCocaGratis ? "block" : "none";
   }
 
+  // ===== PROMOÇÃO: INDIQUE E GANHE (R$10 de desconto para quem indicou) =====
+  var REFERRAL_DESCONTO = 6.99;
+  var creditosIndicacao = 0;
+  function atualizarMeuCodigo(tel) {
+    var box = document.getElementById("meuCodigoIndicacao");
+    if (box) box.textContent = codigoIndicacao(tel) || "— — — —";
+  }
+  function verificarCreditosIndicacao(tel) {
+    if (!dbDisponivel) return;
+    var id = limparTelefone(tel);
+    if (!id) return;
+    db.collection("visitantes").doc(id).get().then(function (doc) {
+      creditosIndicacao = doc.exists ? (doc.data().creditosIndicacao || 0) : 0;
+    }).catch(function (e) { console.error("Erro ao checar créditos de indicação:", e); });
+  }
+  // Aplica o código de indicação digitado por um novo cliente, creditando quem indicou
+  function aplicarCodigoIndicacao(codigoDigitado, telNovo) {
+    if (!dbDisponivel) return;
+    var codigo = (codigoDigitado || "").replace(/\D/g, "");
+    if (codigo.length < 4) return;
+    var idNovo = limparTelefone(telNovo);
+    if (!idNovo || codigo === codigoIndicacao(telNovo)) return; // não pode indicar a si mesmo
+    var refNovo = db.collection("visitantes").doc(idNovo);
+    refNovo.get().then(function (doc) {
+      if (doc.exists && doc.data().indicadoPor) return; // já foi creditado antes, evita duplicidade
+      db.collection("codigos").doc(codigo).get().then(function (cdoc) {
+        if (!cdoc.exists) return;
+        var telIndicador = cdoc.data().telefone;
+        var idIndicador = limparTelefone(telIndicador);
+        if (!idIndicador || idIndicador === idNovo) return;
+        refNovo.set({
+          indicadoPor: codigo,
+          creditosIndicacao: firebase.firestore.FieldValue.increment(1)
+        }, { merge: true });
+        db.collection("visitantes").doc(idIndicador).set({
+          creditosIndicacao: firebase.firestore.FieldValue.increment(1)
+        }, { merge: true });
+        // Reflete o crédito imediatamente pra quem acabou de usar o código
+        creditosIndicacao += 1;
+      }).catch(function (e) { console.error("Erro ao buscar código de indicação:", e); });
+    }).catch(function (e) { console.error("Erro ao aplicar código de indicação:", e); });
+  }
+
   function confirmarEntrada() {
     var input = document.getElementById("entrarWpp");
     var tel = input.value.trim();
@@ -1360,6 +1452,12 @@
     localStorage.setItem("clienteWpp", tel);
     registrarVisita(tel);
     verificarElegibilidadeCoca(tel);
+    verificarCreditosIndicacao(tel);
+    atualizarMeuCodigo(tel);
+    var cupomInput = document.getElementById("entrarCupom");
+    if (cupomInput && cupomInput.value.trim()) {
+      aplicarCodigoIndicacao(cupomInput.value.trim(), tel);
+    }
     fecharModalEntrar();
   }
   document.addEventListener("DOMContentLoaded", function () {
@@ -1377,6 +1475,8 @@
     var salvo = localStorage.getItem("clienteWpp");
     if (salvo) {
       verificarElegibilidadeCoca(salvo);
+      verificarCreditosIndicacao(salvo);
+      atualizarMeuCodigo(salvo);
       registrarVisita(salvo);
     } else {
       abrirModalEntrar();
@@ -1533,6 +1633,28 @@ function renderPorcoes() {
     g.appendChild(div);
   });
 }
+// ===== PROMOÇÃO: LANCHE DO DIA (15% OFF, rotação automática por dia da semana) =====
+var FRETE_GRATIS_MIN = 70;
+var DESCONTO_LANCHE_DIA = 0.15;
+var LANCHE_DO_DIA_ID = null;
+(function configurarLancheDoDia() {
+  // domingo(0) a sábado(6) — um hambúrguer diferente do cardápio normal em promoção a cada dia
+  var rotacao = ["zeca", "beth", "cartola", "seu_jorge", "dona_ivone", "martinho", "diogo"];
+  var diaSemana = new Date().getDay();
+  LANCHE_DO_DIA_ID = rotacao[diaSemana];
+  var lanche = LANCHES.filter(function (l) { return l.id === LANCHE_DO_DIA_ID; })[0];
+  if (lanche && !lanche.precoOriginal) {
+    lanche.precoOriginal = lanche.preco;
+    lanche.preco = Math.round(lanche.preco * (1 - DESCONTO_LANCHE_DIA) * 100) / 100;
+  }
+  var box = document.getElementById("comboDiaConteudo");
+  if (box && lanche) {
+    box.innerHTML = '<b>' + lanche.nome + '</b> por apenas <b>' + fmt(lanche.preco) +
+      '</b> <span style="text-decoration:line-through;opacity:.6">' + fmt(lanche.precoOriginal) + '</span>' +
+      '<br><span style="font-size:12px;opacity:.7">Válido só hoje — peça na aba Lanches</span>';
+  }
+})();
+
 function renderCombos() {
   var g = el("gridC");
   if (!g) { console.warn("gridC not found"); return; }
@@ -1702,8 +1824,15 @@ function renderCart() {
   eItems.innerHTML = h;
   var tot = 0;
   cart.forEach(function(i) { tot += i.total; });
+  var avisoFrete = tot >= FRETE_GRATIS_MIN
+    ? '<div class="aviso-coca-carrinho" style="display:block">🚚 Seu pedido tem <b>frete grátis</b>!</div>'
+    : '<div class="aviso-coca-carrinho" style="display:block">🚚 Faltam ' + fmt(FRETE_GRATIS_MIN - tot) + ' para frete grátis</div>';
+  var avisoIndicacao = (creditosIndicacao > 0)
+    ? '<div class="aviso-coca-carrinho" style="display:block">🎁 Você tem ' + fmt(REFERRAL_DESCONTO) + ' de desconto por indicação (aplicado ao finalizar)</div>'
+    : '';
   eFoot.innerHTML =
     (elegivelCocaGratis ? '<div class="aviso-coca-carrinho" id="avisoCocaCarrinho" style="display:block">🥤 Esse é seu 1º pedido — você ganha uma Coca-Cola 350ml de brinde!</div>' : '<div class="aviso-coca-carrinho" id="avisoCocaCarrinho" style="display:none"></div>') +
+    avisoFrete + avisoIndicacao +
     '<div class="ctrow"><span class="ctlabel">TOTAL</span><span class="ctval">' + fmt(tot) + '</span></div>' +
     '<button class="bwpp" id="btnWpp">&#128242; FINALIZAR PEDIDO NO WHATSAPP</button>';
   el("btnWpp").addEventListener("click", sendWpp);
@@ -1723,6 +1852,8 @@ function sendWpp() {
   if (!nome) { alert("Por favor informe seu nome!"); return; }
   if (!end) { alert("Por favor informe seu endere\u00e7o de entrega!"); return; }
   var tot = 0; cart.forEach(function(i) { tot += i.total; });
+  var descontoIndicacao = (creditosIndicacao > 0) ? Math.min(REFERRAL_DESCONTO, tot) : 0;
+  var totFinal = tot - descontoIndicacao;
   var msg = "Ol\u00e1! Vim pelo site do   O Butiquim do Samba \ud83c\udfb6\ud83d\ude00\n\n";
   msg += "\ud83d\udc64 *Nome:* " + nome + "\n";
   msg += "\ud83d\udccd *Endere\u00e7o:* " + end + "\n\n";
@@ -1732,21 +1863,37 @@ function sendWpp() {
     if (item.ex.length) msg += "   \u2795 " + item.ex.join(", ") + " (+" + fmt(item.et) + ")\n";
   });
   msg += "\n\ud83d\udcb0 *Total dos itens: " + fmt(tot) + "*";
+  if (descontoIndicacao > 0) {
+    msg += "\n\ud83c\udf81 *Desconto por indica\u00e7\u00e3o: -" + fmt(descontoIndicacao) + "*";
+    msg += "\n\ud83d\udcb5 *Total com desconto: " + fmt(totFinal) + "*";
+  }
   if (elegivelCocaGratis) {
     msg += "\n\ud83c\udf81 *Brinde: Coca-Cola 350ml gr\u00e1tis (1\u00ba pedido)*";
   }
-  msg += "\n\n\ud83d\ude9a Poderia me informar o valor do frete para entrega no meu endere\u00e7o?";
+  if (totFinal >= FRETE_GRATIS_MIN) {
+    msg += "\n\ud83d\ude9a *Frete gr\u00e1tis nesse pedido!*";
+  } else {
+    msg += "\n\n\ud83d\ude9a Poderia me informar o valor do frete para entrega no meu endere\u00e7o?";
+  }
   var telCliente = localStorage.getItem("clienteWpp");
   localStorage.setItem("clienteNome", nome);
-  if (telCliente) { registrarPedidoFinalizado(telCliente, tot, nome); }
+  if (telCliente) {
+    registrarPedidoFinalizado(telCliente, totFinal, nome);
+    if (descontoIndicacao > 0) {
+      db.collection("visitantes").doc(limparTelefone(telCliente)).set({
+        creditosIndicacao: firebase.firestore.FieldValue.increment(-1)
+      }, { merge: true }).catch(function (e) { console.error("Erro ao consumir crédito de indicação:", e); });
+      creditosIndicacao -= 1;
+    }
+  }
   elegivelCocaGratis = false;
   atualizarBannerCoca();
   window.open("https://wa.me/5511982596730?text=" + encodeURIComponent(msg), "_blank");
 }
 
 // ── MENU ──
-function openMenu(){ var s=el("side"); var o=el("menuOv"); if(s)s.classList.add("open"); if(o)o.classList.add("open"); document.body.style.overflow="hidden"; }; function _openMenu() { el("side").classList.add("on"); el("menuOv").classList.add("on"); document.body.style.overflow = "hidden"; }
-function closeMenu(){ var s=el("side"); var o=el("menuOv"); if(s)s.classList.remove("open"); if(o)o.classList.remove("open"); document.body.style.overflow=""; }; function _closeMenu() { el("side").classList.remove("on"); el("menuOv").classList.remove("on"); document.body.style.overflow = ""; }
+function openMenu(){ var s=el("side"); var o=el("menuOv"); if(s)s.classList.add("open"); if(o)o.classList.add("open"); document.body.style.overflow="hidden"; }
+function closeMenu(){ var s=el("side"); var o=el("menuOv"); if(s)s.classList.remove("open"); if(o)o.classList.remove("open"); document.body.style.overflow=""; }
 
 el("btnMenu").addEventListener("click", openMenu);
 el("menuOv").addEventListener("click", closeMenu);
@@ -1773,6 +1920,11 @@ function updateBadge() {
     b.offsetHeight;
     b.style.animation = "popBadge .3s cubic-bezier(.4,0,.2,1)";
     if (fab && !fab.classList.contains("show")) fab.classList.add("show");
+    if (fab) {
+      fab.classList.remove("bump");
+      fab.offsetHeight;
+      fab.classList.add("bump");
+    }
   } else {
     b.classList.remove("show");
     if (fab) fab.classList.remove("show");
@@ -1783,6 +1935,24 @@ function updateBadge() {
 renderLanches();
 renderPorcoes();
 renderCombos();
+
+// ── REVELACAO SUAVE AO ROLAR ──
+(function scrollReveal() {
+  if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  if (!("IntersectionObserver" in window)) return;
+  var els = document.querySelectorAll(".card");
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (en) {
+      if (en.isIntersecting) {
+        var idx = Array.prototype.indexOf.call(els, en.target);
+        en.target.style.transitionDelay = ((idx % 4) * 70) + "ms";
+        en.target.classList.add("reveal-in");
+        io.unobserve(en.target);
+      }
+    });
+  }, { threshold: 0.15 });
+  els.forEach(function (c) { c.classList.add("reveal-pre"); io.observe(c); });
+})();
 
 </script>
 
